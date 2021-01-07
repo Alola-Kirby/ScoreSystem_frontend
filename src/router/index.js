@@ -32,7 +32,7 @@ export default new Router({
           component: SS_teacherPerCourse,
         },
         {
-          path: '/SS_personalInfo',
+          path: '/SS_personalInformation',
           name: 'SS_personalInformation',
           component: SS_personalInformation
         },

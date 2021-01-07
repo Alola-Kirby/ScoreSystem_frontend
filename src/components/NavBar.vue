@@ -29,7 +29,7 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span>{{name}}</span> <i
                                 class="icon-submenu lnr lnr-chevron-down"></i></a>
                             <ul class="dropdown-menu">
-                                <li @click="info"><router-link :to="{path: '/SS_personalInfo'}"><i class="lnr lnr-cog"></i> <span>个人资料修改</span></router-link></li>
+                                <li @click="info"><router-link :to="{path: '/SS_personalInformation'}"><i class="lnr lnr-cog"></i> <span>个人资料修改</span></router-link></li>
                                 <li @click="logout"><router-link :to="{path: '/'}"><i class="lnr lnr-exit"></i> <span>退出登录</span></router-link></li>
                             </ul>
                         </li>
