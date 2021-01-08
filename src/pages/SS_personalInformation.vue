@@ -2,60 +2,37 @@
     <div>
         <NavBar></NavBar>
         <div class="body">
-            <h2>个人主页</h2>
-            <div style="float:left;height:100%;width:70%;">
-                <Row style="margin-bottom:20px; font-size:16px;" align="middle" type="flex">
-                    <Col span="4" style="text-align:right; padding-right:30px;">
-                        <b>用户名</b>
-                    </Col>
-                    <Col span="16" >
-                        <Input v-model="username" placeholder="请输入您的用户名" size="small" :disabled="disabled"></Input>
-                    </Col>
-            </Row>
-            <Row v-if="role === 'professor'" style="margin-bottom:20px; font-size:16px;">
-                <Col span="4" style="text-align:right; padding-right:30px;">
-                    <b>领域</b>
-                </Col>
-                <Col span="20">
-                    <CheckboxGroup v-model="field" >
-                        <Checkbox label="A" size="large" :disabled="disabled">机械与控制（包括机械、仪器仪表、自动化控
-制、工程、交通、建筑等）</Checkbox><br>
-                        <Checkbox label="B" size="large" :disabled="disabled">信息技术（包括计算机、电信、通讯、电子等）</Checkbox><br>
-                        <Checkbox label="C" size="large" :disabled="disabled">数理（包括数学、物理、地球与空间科学等）</Checkbox><br>
-                        <Checkbox label="D" size="large" :disabled="disabled">生命科学（包括生物､农学､药学､医学､健
-康､卫生､食品等）</Checkbox><br>
-                        <Checkbox label="E" size="large" :disabled="disabled">能源化工（包括能源、材料、石油、化学、化
-工、生态、环保等）</Checkbox><br>
-                        <Checkbox label="F" size="large" :disabled="disabled">哲学社会科学（包括哲学、经济、社会、法律、教育、管理）</Checkbox><br>
-                    </CheckboxGroup>
-                </Col>
-            </Row>
+            <h3>请修改您的基础信息</h3>
+            <div style="margin: 45px 0 0 0; width: 40%">
+              <Form ref="formInline" :model="formInline" :rules="ruleInline" :label-width="109">
+                <FormItem prop="usrName" label="用户名：">
+                  <Input type="text" v-model="formInline.usrName" placeholder="用户名">
+                    <Icon type="ios-person-outline" slot="prepend"></Icon>
+                  </Input>
+                </FormItem>
+                <FormItem prop="oldPassword" v-if="modifyPsw" label="原密码：">
+                  <Input type="password" v-model="formInline.oldPassword" placeholder="原密码">
+                    <Icon type="ios-lock-outline" slot="prepend"></Icon>
+                  </Input>
+                </FormItem>
+                <FormItem prop="newPassword" v-if="modifyPsw" label="新密码：">
+                  <Input type="password" v-model="formInline.newPassword" placeholder="新密码">
+                    <Icon type="ios-lock-outline" slot="prepend"></Icon>
+                  </Input>
+                </FormItem>
+                <FormItem prop="newPasswordConfirm" v-if="modifyPsw" label="新密码确认：">
+                  <Input type="password" v-model="formInline.newPasswordConfirm" placeholder="新密码确认">
+                    <Icon type="ios-lock-outline" slot="prepend"></Icon>
+                  </Input>
+                </FormItem>
+                <FormItem style="margin-top: 35px">
+                  <Button type="primary" style="margin-right: 25px" @click="changeIfModifyPsw">修改密码</Button>
+                  <Button type="success"  @click="handleSubmit('formInline')">完成</Button>
+                </FormItem>
+              </Form>
             </div>
-            <div style="float:right;height:100%;width:10%;margin-right:30px;">
-                <Button type="info" style="margin-bottom:20px;" @click="revise">
-                    {{revise_text}}
-                </Button>
-                <br>
-                <Button type="success" @click="change_password = true">
-                    修改密码
-                </Button>
-                <Modal
-                    v-model="change_password"
-                    title="修改密码"
-                    ok-text="提交"
-                    width="460"
-                    :mask-closable="false">
-                    <LInput v-model="oldPassword" labelContent="旧密码：" inputType="password"></LInput>
-                    <LInput v-model="newPassword" labelContent="新密码：" inputType="password"></LInput>
-                    <LInput v-model="passwordConform" labelContent="确认密码：" inputType="password"></LInput>
-                    <div slot="footer">
-                        <Button type="text" size="large" @click="cp_cancel">取消</Button>
-                        <Button type="primary" size="large" @click="cp_ok">确定</Button>
-                    </div>
-                </Modal>
-            </div>
-
         </div>
+        <router-view v-if="isRouterAlive"></router-view>
     </div>
 </template>
 
@@ -63,118 +40,74 @@
     import NavBar from '../components/NavBar'
     import LInput from '../components/InputWithLabel'
     export default {
-        components:{
-            NavBar,
-            LInput
-        },
-        data(){
-            return{
-                field:[],
-                username:'',
-                disabled: true,
-                role:'',
-                revise_text: '',
-                change_password: false,
-                oldPassword:'',
-                newPassword:'',
-                passwordConform:'',
-            }
-        },
-        created() {
-            this.role = this.$cookie.get('role');
-            this.revise_text = '修改信息';
-            // this.$Message.info('点击修改信息或修改密码可以进行修改');
-            let url = this.$baseURL + '/api/v1/get_user_info';
-            this.$http.post(url,{'mail':this.$cookie.get('mail')}).then(function(res){
-                // console.log(res.body)
-                this.username = res.body.username;
-                if(this.role === 'professor'){
-                    var field = res.body.field;
-                    for(var i = 0;i<6; i++){
-                        if (field[i] === '1'){
-                            this.field.push(String.fromCharCode(65+i));
-                        }
-                    }
-                    //console.log(this.field);
-                }
-
-            },function(res){
-                // console.log(res.body)
-            })
-        },
-        methods: {
-            revise(){
-                if(this.disabled === true){
-                    this.disabled = false;
-                    this.revise_text = '完成修改';
-                }
-                else{
-                    this.revise_text = '修改信息';
-                    this.disabled = true;
-                    var rt = '';
-                    if(this.role === 'professor'){
-                        rt = '000000';
-                        rt = rt.split('');
-                        this.field.forEach(v=>{
-                            //console.log(v);
-                            rt[v.charCodeAt()-65]='1';
-                        })
-                        rt = rt.join('');
-                    }
-                    let url = this.$baseURL + '/api/v1/change_info';
-                    // this.$Message.info('')
-                    this.$http.post(url,{
-                        'mail': this.$cookie.get('mail'),
-                        'username':this.username,
-                        'field':rt
-                    }).then(function(res){
-                        //console.log(res);
-                        if(res.body.state!=='fail'){
-                            this.$Message.success('修改成功！');
-                        }else{
-                            this.$Message.error('修改失败！' + res.body.reason);
-                        }
-                    },function(res){
-                        //console.log(res);
-                        this.$Message.error('修改失败！');
-                    })
-                }
-            },
-            cp_ok(){
-                // this.$Message.info('')
-                if (this.newPassword !== this.passwordConform) {
-                    this.$Message.error("两次输入的密码不相同！");
-                    return;
-                }
-                let url = this.$baseURL + '/api/v1/change_password';
-                this.$http.post(url, {
-                    'mail':this.$cookie.get('mail'),
-                    'old_password':this.oldPassword,
-                    'new_password':this.newPassword
-                }).then(function(res){
-                    if(res.body.state!=='fail'){
-                            this.$Message.success('修改成功！');
-                            this.cp_cancel();
-                    }else{
-                        this.$Message.error('修改失败！' + res.body.reason);
-                    }
-                },function(res){
-                    this.$Message.error('修改失败！');
-                })
-            },
-            cp_cancel(){
-                this.change_password = false;
-                this.oldPassword = '';
-                this.newPassword = '';
-                this.passwordConform = '';
-            }
-        },
-        mounted(){
-            this.$Message.config({
-                top: 100,
-                duration: 1,
-            });
+      components:{
+          NavBar,
+          LInput
+      },
+      inject: ['reload'],
+      data () {
+        return {
+          modifyPsw: false,
+          isRouterAlive: true,
+          inject: ['reload'],
+          formInline: {
+            usrName: '',
+            oldPassword: '',
+            newPassword: '',
+            newPasswordConfirm: ''
+          },
+          ruleInline: {
+            usrName: [
+              { required: true, message: '请输入您想要修改为的用户名', trigger: 'blur' }
+            ],
+            oldPassword: [
+              { required: true, message: '请输入原密码', trigger: 'blur' }
+            ],
+            newPassword: [
+              { required: true, message: '请输入新密码', trigger: 'blur' },
+              { type: 'string', min: 6, message: '密码长度不得小于6位', trigger: 'blur' }
+            ],
+            newPasswordConfirm: [
+              { required: true, message: '请重新输入新密码', trigger: 'blur' },
+              { type: 'string', min: 6, message: '密码长度不得小于6位', trigger: 'blur' }
+            ]
+          }
         }
+      },
+      methods: {
+        handleSubmit(name) {
+          this.$refs[name].validate((valid) => {
+            if (valid) {
+              var that = this
+              this.$http.get(this.$baseURL + '/modifyInfo', {params: {
+                  oriUsrNo: this.$cookie.get('usrNo'),
+                  usrName: this.formInline.usrName,
+                  oldPassword: this.formInline.oldPassword,
+                  newPassword: this.formInline.newPassword,
+                  newPasswordConfirm: this.formInline.newPasswordConfirm
+                }}).then(function (res) {
+                var detail = res.body
+                if (detail.code === 200) {
+                  this.rows = detail.data
+                  this.$cookie.set('username', that.formInline.usrName)
+                  this.reload()
+                  this.$Message.success(detail.message)
+                }
+                else {
+                  this.$Message.error(detail.message)
+                }
+              }, function (res) {
+                this.$Message.error('信息修改失败')
+              })
+            } else {
+              this.$Message.error('信息填写不符合规范！');
+            }
+          })
+        },
+        changeIfModifyPsw() {
+          this.modifyPsw = !this.modifyPsw
+        }
+      }
     }
 </script>
 
@@ -182,11 +115,11 @@
     .body{
         left: 280px;
         bottom: 50px;
-        position: relative;
+        /*position: relative;*/
         top: 100px;
-        border: 1px dashed black;
+        border: 1px black;
         border-radius: 20px;
-        /*margin: 100px 0px 50px 30%;*/
+        margin: 100px 0px 50px 30%;
         padding: 20px;
         width: 75%;
         /*text-align: center;*/
@@ -194,10 +127,10 @@
         min-width: 600px;
         color: black;
     }
-    h2{
+    h3{
         border-left: 5px solid purple;
         padding: 0 0 0 15px!important;
-        font-size: 28px!important;
+        font-size: 26px!important;
         margin: 24px 0!important;
     }
     >>>.ivu-checkbox-large{

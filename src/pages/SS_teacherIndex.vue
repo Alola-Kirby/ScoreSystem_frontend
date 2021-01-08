@@ -43,7 +43,6 @@ export default {
                     this.$router.push({
                       path: '/SS_teacherPerCourse',
                       query: {
-                        usrNo: this.rows[params.index].teacher_id,
                         classId: this.rows[params.index].class_id
                       }
                     })

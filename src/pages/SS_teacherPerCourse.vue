@@ -117,9 +117,6 @@ export default {
         if (detail.code === 200) {
           this.class_name = detail.data
         }
-        else {
-          this.$Message.error(detail.message)
-        }
       }, function (res) {
         this.$Message.error('获取课程名称失败')
       })
